@@ -7,13 +7,16 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 
-CHROME_DRIVER_PATH = '/Users/shin/Downloads/chromedriver-mac-arm64 2/chromedriver'
+CHROME_DRIVER_PATH = 'YOUR_PATH'
 options = Options()
 options.add_experimental_option("detach", True)
 chrome_service = Service(executable_path=CHROME_DRIVER_PATH)
 driver = webdriver.Chrome(service=chrome_service, options=options)
 
 # 원하는 알파벳 입력
+# brand_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+#                'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+#                'X', 'Y', 'Z', '.ect']
 brand_names = ['A']
 
 # 웹페이지 열기
