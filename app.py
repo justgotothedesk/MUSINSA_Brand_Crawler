@@ -4,22 +4,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-import time
-import subprocess
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 
-# options = Options()
-# options.add_argument('--proxy-server=socks5://127.0.0.1:9050')
 CHROME_DRIVER_PATH = '/Users/shin/Downloads/chromedriver-mac-arm64 2/chromedriver'
 options = Options()
 options.add_experimental_option("detach", True)
 chrome_service = Service(executable_path=CHROME_DRIVER_PATH)
 driver = webdriver.Chrome(service=chrome_service, options=options)
 
-
-brand_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'etc.']
+# 원하는 알파벳 입력
+brand_names = ['A']
 
 # 웹페이지 열기
 driver.get("https://www.musinsa.com/app/")
@@ -29,7 +24,10 @@ yes = 0
 no = 0
 
 # 크롤링이 불가능한 브랜드명
-non = []
+non = {
+    '브랜드명' : []
+}
+
 result = {
     '브랜드명' : [],
     '브랜드 로고' : [],
@@ -111,6 +109,7 @@ try:
                     driver.get(goods_href_value)
                 except Exception as e:
                     print("등록된 상품이 없어, 정보가 존재하지 않습니다.")
+                    non['브랜드명'].append(en_brand_info)
                     driver.execute_script("window.history.go(-1)")
                     no += 1
                     print("정상적으로 크롤링된 데이터의 갯수: ", yes)
@@ -154,6 +153,7 @@ try:
                     print('')
 
                 except Exception as e:
+                    non['브랜드명'].append(en_brand_info)
                     print("판매자 정보가 존재하지 않습니다.")
                     no += 1 
                     print("정상적으로 크롤링된 데이터의 갯수: ", yes)
@@ -176,11 +176,14 @@ try:
                 result['영업소재지'].append(data['영업소재지'])
                 result['교환 / 반품 주소'].append(data['교환 / 반품 주소'])
 
-                if (len(result['상호']) >= 10):
+                if yes == 30:
                     df = pd.DataFrame(result)
                     df.set_index('브랜드명', inplace=True)
-                    df.to_excel("./exel_file.xlsx")
-                    break
+                    df.to_excel(f"./{brand_names[0]}_brand_info.xlsx")
+                    df2 = pd.DataFrame(non)
+                    df2.set_index('브랜드명', inplace=True)
+                    df2.to_excel(f"./{brand_names[0]}_error.xlsx")
+
                 print("정상적으로 크롤링된 데이터의 갯수: ", yes)
                 print("크롤링이 불가능한 데이터의 갯수: ", no)
                 print("")
@@ -194,10 +197,26 @@ try:
 except Exception as e:
     print("Exception occurred:", e)
     no += 1
+    df = pd.DataFrame(result)
+    df.set_index('브랜드명', inplace=True)
+    df.to_excel(f"./{brand_names[0]}_brand_info.xlsx")
+
+    df2 = pd.DataFrame(non)
+    df2.set_index('브랜드명', inplace=True)
+    df2.to_excel(f"./{brand_names[0]}_error.xlsx")
+
+    print("일부 크롤링이 완료되었습니다.")
+    print("정상적으로 크롤링된 데이터의 갯수: ", yes)
+    print("크롤링이 불가능한 데이터의 갯수: ", no)
 
 df = pd.DataFrame(result)
 df.set_index('브랜드명', inplace=True)
-df.to_excel("./exel_file.xlsx")
+df.to_excel(f"./{brand_names[0]}_brand_info.xlsx")
 
+df2 = pd.DataFrame(non)
+df2.set_index('브랜드명', inplace=True)
+df2.to_excel(f"./{brand_names[0]}_error.xlsx")
+
+print("일부 크롤링이 완료되었습니다.")
 print("정상적으로 크롤링된 데이터의 갯수: ", yes)
 print("크롤링이 불가능한 데이터의 갯수: ", no)
