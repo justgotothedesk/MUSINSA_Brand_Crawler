@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+import time
 
 CHROME_DRIVER_PATH = 'YOUR_PATH'
 options = Options()
@@ -14,9 +15,8 @@ chrome_service = Service(executable_path=CHROME_DRIVER_PATH)
 driver = webdriver.Chrome(service=chrome_service, options=options)
 
 # 원하는 알파벳 입력
-# brand_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-#                'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-#                'X', 'Y', 'Z', '.ect']
+# brand_names = ['A', 'B', 'C', 'D', 'E', 'F, 'G', 'H', 'I', 'J', 'K', 'L',
+#                 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'etc.']
 brand_names = ['A']
 
 # 웹페이지 열기
@@ -122,13 +122,14 @@ try:
                 
                 try:
                     # 판매자 정보 출력
+                    time.sleep(1)
                     seller_info_element = WebDriverWait(driver, 10).until(
                         EC.visibility_of_element_located((By.XPATH, "/html/body/div[3]/div[2]/div[4]/section[3]/table"))
                     )
 
                     seller_info_lines = seller_info_element.text.split('\n')
                     for i in range(len(seller_info_lines)):
-                        if i == 0 or seller_info_lines[i].strip() == '':
+                        if i == 0:
                             continue
                         if i == 1:
                             key, value = seller_info_lines[i].split(' / 대표자', 1)
@@ -146,7 +147,7 @@ try:
                     
                     return_info_lines = return_info_element.text.split('\n')
                     for i in range(len(return_info_lines)):
-                        if i == 0 or return_info_lines[i].strip() == '':
+                        if i == 0:
                             continue
                         key, value = return_info_lines[i].split('반품 주소', 1)
                         data["교환 / 반품 주소"] = value.strip()
@@ -157,7 +158,7 @@ try:
 
                 except Exception as e:
                     non['브랜드명'].append(en_brand_info)
-                    print("판매자 정보가 존재하지 않습니다.")
+                    print("판매자 정보가 존재하지 않습니다.", e, en_brand_info)
                     no += 1 
                     print("정상적으로 크롤링된 데이터의 갯수: ", yes)
                     print("크롤링이 불가능한 데이터의 갯수: ", no)
@@ -179,14 +180,6 @@ try:
                 result['영업소재지'].append(data['영업소재지'])
                 result['교환 / 반품 주소'].append(data['교환 / 반품 주소'])
 
-                if yes == 30:
-                    df = pd.DataFrame(result)
-                    df.set_index('브랜드명', inplace=True)
-                    df.to_excel(f"./{brand_names[0]}_brand_info.xlsx")
-                    df2 = pd.DataFrame(non)
-                    df2.set_index('브랜드명', inplace=True)
-                    df2.to_excel(f"./{brand_names[0]}_error.xlsx")
-
                 print("정상적으로 크롤링된 데이터의 갯수: ", yes)
                 print("크롤링이 불가능한 데이터의 갯수: ", no)
                 print("")
@@ -194,7 +187,7 @@ try:
                 driver.execute_script("window.history.go(-1)")               
                 driver.execute_script("window.history.go(-1)")   
         except Exception as e:
-            print("해당 브랜드 이상 ", e)            
+            print("해당 브랜드 이상 ", e)         
             continue
             
 except Exception as e:
